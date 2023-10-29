@@ -11,4 +11,5 @@ was after `npm i react-bootstrap bootstrap react-icons`
 * npm init and fill the data
 * npm i express
 * npm i -D nodemon concurrently
+* npm i mongoose
   
