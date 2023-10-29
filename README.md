@@ -12,4 +12,6 @@ was after `npm i react-bootstrap bootstrap react-icons`
 * npm i express
 * npm i -D nodemon concurrently
 * npm i mongoose
+* npm i bcryptjs
+* npm i colors
   
