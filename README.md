@@ -1,4 +1,12 @@
-# Notes
+# Notes frontend
+
+the 8 vulnerabilities (2 moderate, 6 high)
+
+was after `npm i react-bootstrap bootstrap react-icons`
+
+* npm i axios
+
+# Notes backend
 
 * npm init and fill the data
 * npm i express
