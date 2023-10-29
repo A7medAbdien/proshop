@@ -5,6 +5,7 @@ the 8 vulnerabilities (2 moderate, 6 high)
 was after `npm i react-bootstrap bootstrap react-icons`
 
 * npm i axios
+* npm i @reduxjs/toolkit react-redux
 
 # Notes backend
 
