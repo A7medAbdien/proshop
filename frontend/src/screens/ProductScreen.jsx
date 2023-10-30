@@ -4,6 +4,8 @@ import { Row, Col, Image, ListGroup, Card, Button } from 'react-bootstrap';
 
 import Rating from '../components/Rating';
 import { useGetProductDetailsQuery } from '../slices/productSlice';
+import Loader from '../components/Loader';
+import Message from '../components/Message';
 
 
 const ProductScreen = () => {
@@ -21,9 +23,11 @@ const ProductScreen = () => {
                 Go Back
             </Link>
             {isLoading ? (
-                <div>Loading...</div>
+                <Loader />
             ) : error ? (
-                <div>{error?.data.message || error.error}</div>
+                <Message variant='danger'>
+                    {error?.data?.message || error.error}
+                </Message>
             ) : (
                 <>
                     <Row>
