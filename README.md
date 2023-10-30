@@ -7,6 +7,13 @@ was after `npm i react-bootstrap bootstrap react-icons`
 * npm i axios
 * npm i @reduxjs/toolkit react-redux
 
+## Work flow
+
+1. store - container for all the slices
+2. api slice - (server slice - all api calls results are there)
+   1. <model> slice - (each model has its own)
+3. client slice - like cart which starts from the client
+
 # Notes backend
 
 * npm init and fill the data
