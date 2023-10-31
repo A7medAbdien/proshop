@@ -5,7 +5,7 @@ import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap'
 import { useDispatch } from 'react-redux';
 
 import { addToCart } from '../slices/cartSlice';
-import { useGetProductDetailsQuery } from '../slices/productSlice';
+import { useGetProductDetailsQuery } from '../slices/productApiSlice';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
