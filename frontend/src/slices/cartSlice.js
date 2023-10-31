@@ -36,9 +36,13 @@ const cartSlice = createSlice({
       // Update the prices and save to storage
       return updateCart(state);
     },
+    saveShippingAddress: (state, action) => {
+      state.shippingAddress = action.payload;
+      localStorage.setItem('cart', JSON.stringify(state));
+    },
   },
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, saveShippingAddress } = cartSlice.actions;
 
 export default cartSlice.reducer;
