@@ -22,6 +22,7 @@ was after `npm i react-bootstrap bootstrap react-icons`
 * npm i mongoose
 * npm i bcryptjs
 * npm i colors
+* npm i @paypal/react-paypal-js
   
   
 # Similarity With .Net Web Assembly
