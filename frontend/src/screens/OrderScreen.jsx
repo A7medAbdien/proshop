@@ -10,6 +10,7 @@ import {
   useGetOrderDetailsQuery,
   usePayOrderMutation,
   useGetPaypalClientIdQuery,
+  useDeliverOrderMutation,
 } from '../slices/orderApiSlice';
 
 const OrderScreen = () => {
@@ -33,6 +34,8 @@ const OrderScreen = () => {
     isLoading: loadingPayPal,
     error: errorPayPal,
   } = useGetPaypalClientIdQuery();
+
+  const [deliverOrder, { isLoading: loadingDeliver }] = useDeliverOrderMutation();
 
   useEffect(() => {
     if (!errorPayPal && !loadingPayPal && paypal.clientId) {
@@ -90,6 +93,11 @@ const OrderScreen = () => {
         return orderID;
       });
   }
+
+  const deliverHandler = async () => {
+    await deliverOrder(orderId);
+    refetch();
+  };
 
   return isLoading ? (
     <Loader />
@@ -209,12 +217,12 @@ const OrderScreen = () => {
                     <Loader />
                   ) : (
                     <div>
-                      <Button
+                      {/* <Button
                         style={{ marginBottom: '10px' }}
                         onClick={onApproveTest}
                       >
                         Test Pay Order
-                      </Button>
+                      </Button> */}
 
                       <div>
                         <PayPalButtons
@@ -227,7 +235,23 @@ const OrderScreen = () => {
                   )}
                 </ListGroup.Item>
               )}
-              {/* {MARK AS DELIVERED PLACEHOLDER} */}
+
+              {loadingDeliver && <Loader />}
+
+              {userInfo &&
+                userInfo.isAdmin &&
+                order.isPaid &&
+                !order.isDelivered && (
+                  <ListGroup.Item>
+                    <Button
+                      type='button'
+                      className='btn btn-block'
+                      onClick={deliverHandler}
+                    >
+                      Mark As Delivered
+                    </Button>
+                  </ListGroup.Item>
+                )}
             </ListGroup>
           </Card>
         </Col>
