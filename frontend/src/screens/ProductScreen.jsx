@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import { addToCart } from '../slices/cartSlice';
-import { useCreateReviewMutation, useGetProductDetailsQuery, useUpdateReviewMutation } from '../slices/productApiSlice';
+import { useCreateReviewMutation, useDeleteReviewMutation, useGetProductDetailsQuery, useUpdateReviewMutation } from '../slices/productApiSlice';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -39,6 +39,7 @@ const ProductScreen = () => {
 
     const [createReview, { isLoading: loadingProductReview }] = useCreateReviewMutation();
     const [updateReview,] = useUpdateReviewMutation();
+    const [deleteReview,] = useDeleteReviewMutation();
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -66,6 +67,16 @@ const ProductScreen = () => {
         }
     };
 
+    const deleteReviewHandler = async () => {
+        try {
+            await deleteReview(productId);
+            refetch();
+            toast.success('Review deleted successfully');
+        } catch (err) {
+            toast.error(err?.data?.message || err.error);
+        }
+    }
+
 
     useEffect(() => {
         if (userInfo && product) {
@@ -76,6 +87,10 @@ const ProductScreen = () => {
                 setRating(review.rating)
                 setComment(review.comment)
                 setAlreadyReviewed(true)
+            } else {
+                setRating(0);
+                setComment('');
+                setAlreadyReviewed(false);
             }
         }
     }, [product, userInfo, alreadyReviewed, setAlreadyReviewed])
@@ -229,6 +244,14 @@ const ProductScreen = () => {
                                             >
                                                 Submit
                                             </Button>
+                                            {alreadyReviewed && <Button
+                                                className='mx-2'
+                                                onClick={() => deleteReviewHandler()}
+                                                type='button'
+                                                variant='danger'
+                                            >
+                                                Delete
+                                            </Button>}
                                         </Form>
                                     ) : (
                                         <Message>
