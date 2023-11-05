@@ -123,11 +123,43 @@ const createProductReview = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update a product review
+// @route   PUT /api/products/:id/reviews
+// @access  Private
+const updateProductReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    const reviewIndex = product.reviews.findIndex(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (reviewIndex > -1) {
+      product.reviews[reviewIndex].name = req.user.name;
+      product.reviews[reviewIndex].rating = Number(rating);
+      product.reviews[reviewIndex].comment = comment;
+      product.reviews[reviewIndex].user = req.user._id;
+
+      const updatedProduct = await product.save();
+      res.json(updatedProduct.reviews[reviewIndex]);
+    } else {
+      res.status(404);
+      throw new Error('Review not found');
+    }
+  } else {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+});
+
 export {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
-  createProductReview
+  createProductReview,
+  updateProductReview
 };
