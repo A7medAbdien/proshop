@@ -42,3 +42,9 @@ was after `npm i react-bootstrap bootstrap react-icons`
 3. server.js (app.use) - (Here it just route to the file, but in it define its scope)
 4. Controller (server logic - works as services in .Net)
 5. fetch on Client
+
+# things need to update
+
+1. adding the same item to cart increase the quantities of it and showing if it is already exist
+2. list of images
+3. update review
