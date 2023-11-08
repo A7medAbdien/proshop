@@ -15,6 +15,7 @@ const authSlice = createSlice({
       localStorage.setItem('userInfo', JSON.stringify(action.payload));
       // 1 hour it is seemlier to the token time which is in generateToken file in the backend
       const expirationTime = new Date().getTime() + 60 * 60 * 1000;
+      // const expirationTime = new Date().getTime() + process.env.TOKENS_AGE * 60 * 60 * 1000;
       // const expirationTime = new Date().getTime() + 60 * 1000; // 1 minute (for testing)
       localStorage.setItem('expirationTime', expirationTime);
     },
