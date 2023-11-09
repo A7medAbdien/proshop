@@ -96,7 +96,7 @@ const ProfileScreen = () => {
             ></Form.Control>
           </Form.Group>
 
-          <Button type='submit' variant='primary'>
+          <Button disabled={loadingUpdateProfile} type='submit' variant='primary'>
             Update
           </Button>
         </Form>
