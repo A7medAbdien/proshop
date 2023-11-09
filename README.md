@@ -45,6 +45,10 @@ was after `npm i react-bootstrap bootstrap react-icons`
 
 # things need to update
 
-1. adding the same item to cart increase the quantities of it and showing if it is already exist
-2. list of images
-3. update review
+1. adding the same item to cart increase the quantities of it 
+   1. and showing if it is already exist
+2. update review 👍
+3. server confirmation for the orders price and quantity
+4. add to cart affects inStock
+5. sort by
+6. list of images - integrate cloudinary??
