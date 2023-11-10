@@ -11,7 +11,7 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       // The item to add to the cart
-      const item = action.payload;
+      const { user, rating, numReviews, reviews, ...item } = action.payload;
 
       // Check if the item is already in the cart
       const existItem = state.cartItems.find((x) => x._id === item._id);
