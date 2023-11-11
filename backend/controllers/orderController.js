@@ -13,79 +13,79 @@ const addOrderItems = asyncHandler(async (req, res) => {
   if (!orderItems || orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
-  } else {
-    // get the ordered items from our database
-    const itemsFromDB = await Product.find({
-      _id: { $in: orderItems.map((x) => x._id) },
-    });
+  }
+  // get the ordered items from our database
+  const itemsFromDB = await Product.find({
+    _id: { $in: orderItems.map((x) => x._id) },
+  });
 
-    // map over the order items and use the price from our items from database
-    const dbOrderItems = orderItems.map((itemFromClient) => {
-      const matchingItemFromDB = itemsFromDB.find(
-        (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
-      );
-      if (!matchingItemFromDB) {
-        res.status(400);
-        throw new Error('No matching order items in db');
-      }
-      return {
-        ...itemFromClient,
-        product: itemFromClient._id,
-        price: matchingItemFromDB.price,
-        requestedQty: itemFromClient.qty,
-        _id: undefined,
-      };
-    });
+  // map over the order items and use the price from our items from database
+  const dbOrderItems = orderItems.map((itemFromClient) => {
+    const matchingItemFromDB = itemsFromDB.find(
+      (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
+    );
+    if (!matchingItemFromDB) {
+      res.status(400);
+      throw new Error('No matching order items in db');
+    }
+    return {
+      ...itemFromClient,
+      product: itemFromClient._id,
+      price: matchingItemFromDB.price,
+      requestedQty: itemFromClient.qty,
+      _id: undefined,
+    };
+  });
 
-    const session = await Product.startSession();
-    session.startTransaction();
+  const session = await Product.startSession();
+  session.startTransaction();
 
-    for (const item of dbOrderItems) {
-      const product = await Product.findById(item.product).session(session);
+  for (const item of dbOrderItems) {
+    const product = await Product.findById(item.product).session(session);
 
-      if (!product) {
-        res.status(400);
-        throw new Error('Product not found');
-      }
-
-      if (product.countInStock < 0) {
-        await session.abortTransaction();
-        session.endSession();
-        res.status(400);
-        throw new Error('Insufficient stock for some products');
-      }
-
-      if (product.countInStock < item.qty && product.countInStock > 0) {
-        item.qty = product.countInStock;
-        product.countInStock = 0;
-      } else {
-        product.countInStock -= item.qty;
-      }
-      await product.save();
+    if (!product) {
+      res.status(400);
+      throw new Error('Product not found');
     }
 
-    await session.commitTransaction();
-    session.endSession();
+    if (product.countInStock < 0) {
+      await session.abortTransaction();
+      session.endSession();
+      res.status(400);
+      throw new Error('Insufficient stock for some products');
+    }
 
-    // calculate prices
-    const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
-      calcPrices(dbOrderItems);
-
-    const order = new Order({
-      orderItems: dbOrderItems,
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-    });
-
-    const createdOrder = await order.save();
-
-    res.status(201).json(createdOrder);
+    if (product.countInStock < item.qty && product.countInStock > 0) {
+      item.qty = product.countInStock;
+      product.countInStock = 0;
+    } else {
+      product.countInStock -= item.qty;
+    }
+    await product.save();
   }
+
+  await session.commitTransaction();
+  session.endSession();
+
+  // calculate prices
+  const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
+    calcPrices(dbOrderItems);
+
+  const order = new Order({
+    orderItems: dbOrderItems,
+    user: req.user._id,
+    shippingAddress,
+    paymentMethod,
+    itemsPrice,
+    taxPrice,
+    shippingPrice,
+    totalPrice,
+  });
+
+  const createdOrder = await order.save();
+
+  res.status(201).json(createdOrder);
+
 });
 
 // @desc    Get logged in user orders
