@@ -6,7 +6,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import { addToCart } from '../slices/cartSlice';
-import { useCreateReviewMutation, useDeleteReviewMutation, useGetProductDetailsQuery, useUpdateReviewMutation } from '../slices/productApiSlice';
+import {
+    useCreateReviewMutation,
+    useDeleteReviewMutation,
+    useGetProductDetailsQuery,
+    useUpdateReviewMutation
+} from '../slices/productApiSlice';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -18,6 +23,9 @@ const ProductScreen = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const cart = useSelector((state) => state.cart);
+    const { cartItems } = cart;
 
     const [alreadyReviewed, setAlreadyReviewed] = useState(false);
     const [qty, setQty] = useState(1);
@@ -92,6 +100,14 @@ const ProductScreen = () => {
                 setRating(0);
                 setComment('');
                 setAlreadyReviewed(false);
+            }
+
+            const existItem = cartItems.find((x) => x._id === product._id);
+            if (existItem) {
+                setQty(existItem.qty);
+            }
+            else {
+                setQty(1);
             }
         }
     }, [product, userInfo, alreadyReviewed, setAlreadyReviewed])
