@@ -40,7 +40,7 @@ const ProductEditScreen = () => {
         category,
         description,
         countInStock,
-      });
+      }).unwrap();
       toast.success('product updated successfully');
       refetch();
       navigate('/admin/productlist');
