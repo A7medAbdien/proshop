@@ -10,7 +10,7 @@ import { checkIfNewTransaction, verifyPayPalPayment } from '../utils/paypal.js';
 const addOrderItems = asyncHandler(async (req, res) => {
   const { orderItems, shippingAddress, paymentMethod } = req.body;
 
-  if (orderItems && orderItems.length === 0) {
+  if (!orderItems || orderItems.length === 0) {
     res.status(400);
     throw new Error('No order items');
   } else {
@@ -24,6 +24,10 @@ const addOrderItems = asyncHandler(async (req, res) => {
       const matchingItemFromDB = itemsFromDB.find(
         (itemFromDB) => itemFromDB._id.toString() === itemFromClient._id
       );
+      if (!matchingItemFromDB) {
+        res.status(400);
+        throw new Error('No matching order items in db');
+      }
       return {
         ...itemFromClient,
         product: itemFromClient._id,
@@ -31,6 +35,40 @@ const addOrderItems = asyncHandler(async (req, res) => {
         _id: undefined,
       };
     });
+
+    try {
+      const session = await Product.startSession();
+      session.startTransaction();
+
+      for (const item of dbOrderItems) {
+        const product = await Product.findById(item.product).session(session);
+        if (!product) {
+          res.status(400);
+          throw new Error('Product not found');
+        }
+
+        if (product.countInStock < 1) {
+          res.status(400);
+          throw new Error('Insufficient stock for some products');
+        } else {
+          // if (product.countInStock < item.qty && product.countInStock > 0) {
+          //   item.qty = product.countInStock;
+          //   product.countInStock = 0;
+          // } else
+          product.countInStock -= item.qty;
+
+          await product.save();
+        }
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      // next(error);
+    }
 
     // calculate prices
     const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
