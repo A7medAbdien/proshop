@@ -153,8 +153,8 @@ const OrderScreen = () => {
               ) : (
                 <ListGroup variant='flush'>
                   {order.orderItems.map((item, index) => (
-                    <ListGroup.Item key={index}>
-                      <Row>
+                    <ListGroup.Item key={index} variant={item.requestedQty !== item.qty && 'info'}>
+                      <Row color={''}>
                         <Col md={1}>
                           <Image
                             src={item.image}
@@ -168,8 +168,11 @@ const OrderScreen = () => {
                             {item.name}
                           </Link>
                         </Col>
+                        {item.requestedQty !== item.qty && <Col md={4}>
+                          You requested {item.requestedQty}. Currently the available items are {item.qty} only.
+                        </Col>}
                         <Col md={4}>
-                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                          {item.qty} x ${item.price.toFixed(2)} = ${(item.qty * item.price).toFixed(2)}
                         </Col>
                       </Row>
                     </ListGroup.Item>

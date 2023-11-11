@@ -32,43 +32,40 @@ const addOrderItems = asyncHandler(async (req, res) => {
         ...itemFromClient,
         product: itemFromClient._id,
         price: matchingItemFromDB.price,
+        requestedQty: itemFromClient.qty,
         _id: undefined,
       };
     });
 
-    try {
-      const session = await Product.startSession();
-      session.startTransaction();
+    const session = await Product.startSession();
+    session.startTransaction();
 
-      for (const item of dbOrderItems) {
-        const product = await Product.findById(item.product).session(session);
-        if (!product) {
-          res.status(400);
-          throw new Error('Product not found');
-        }
+    for (const item of dbOrderItems) {
+      const product = await Product.findById(item.product).session(session);
 
-        if (product.countInStock < item.qty) {
-          res.status(400);
-          throw new Error('Insufficient stock for some products');
-        } else {
-          // if (product.countInStock < item.qty && product.countInStock > 0) {
-          //   item.qty = product.countInStock;
-          //   product.countInStock = 0;
-          // } else
-          product.countInStock -= item.qty;
-
-          await product.save();
-        }
+      if (!product) {
+        res.status(400);
+        throw new Error('Product not found');
       }
 
-      await session.commitTransaction();
-      session.endSession();
+      if (product.countInStock < 0) {
+        await session.abortTransaction();
+        session.endSession();
+        res.status(400);
+        throw new Error('Insufficient stock for some products');
+      }
 
-    } catch (error) {
-      await session.abortTransaction();
-      session.endSession();
-      // next(error);
+      if (product.countInStock < item.qty && product.countInStock > 0) {
+        item.qty = product.countInStock;
+        product.countInStock = 0;
+      } else {
+        product.countInStock -= item.qty;
+      }
+      await product.save();
     }
+
+    await session.commitTransaction();
+    session.endSession();
 
     // calculate prices
     const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
