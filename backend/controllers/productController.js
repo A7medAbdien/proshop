@@ -148,6 +148,64 @@ const getTopProducts = asyncHandler(async (req, res) => {
   res.json(products);
 });
 
+// @desc    Update a product review
+// @route   PUT /api/products/:id/reviews
+// @access  Private
+const updateProductReview = asyncHandler(async (req, res) => {
+  const { rating, comment } = req.body;
+
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    const reviewIndex = product.reviews.findIndex(
+      (r) => r.user.toString() === req.user._id.toString()
+    );
+
+    if (reviewIndex > -1) {
+      product.reviews[reviewIndex].name = req.user.name;
+      product.reviews[reviewIndex].rating = Number(rating);
+      product.reviews[reviewIndex].comment = comment;
+      product.reviews[reviewIndex].user = req.user._id;
+
+      product.rating =
+        product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+        product.reviews.length;
+
+      const updatedProduct = await product.save();
+      res.json(updatedProduct.reviews[reviewIndex]);
+    } else {
+      res.status(404);
+      throw new Error('Review not found');
+    }
+  } else {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+});
+
+// @desc    Delete a product
+// @route   DELETE /api/products/:id/reviews
+// @access  Private
+const deleteProductReview = asyncHandler(async (req, res) => {
+  const product = await Product.findById(req.params.id);
+
+  if (product) {
+    product.reviews = product.reviews.filter(
+      (r) => r.user.toString() !== req.user._id.toString());
+    product.numReviews = product.reviews.length;
+    product.rating = product.reviews.length == 0 ?
+      0 :
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+
+    await product.save();
+    res.json({ message: 'Review removed' });
+  } else {
+    res.status(404);
+    throw new Error('Review not found');
+  }
+});
+
 export {
   getProducts,
   getProductById,
@@ -156,4 +214,6 @@ export {
   deleteProduct,
   createProductReview,
   getTopProducts,
+  updateProductReview,
+  deleteProductReview
 };

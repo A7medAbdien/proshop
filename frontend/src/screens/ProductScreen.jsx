@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { Row, Col, Image, ListGroup, Card, Button, Form } from 'react-bootstrap';
@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
 import { addToCart } from '../slices/cartSlice';
-import { useCreateReviewMutation, useGetProductDetailsQuery } from '../slices/productApiSlice';
+import { useCreateReviewMutation, useDeleteReviewMutation, useGetProductDetailsQuery, useUpdateReviewMutation } from '../slices/productApiSlice';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
@@ -19,6 +19,7 @@ const ProductScreen = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [alreadyReviewed, setAlreadyReviewed] = useState(false);
     const [qty, setQty] = useState(1);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
@@ -37,24 +38,63 @@ const ProductScreen = () => {
 
     const { userInfo } = useSelector((state) => state.auth);
 
-    const [createReview, { isLoading: loadingProductReview }] =
-        useCreateReviewMutation();
+    const [createReview, { isLoading: loadingProductReview }] = useCreateReviewMutation();
+    const [updateReview,] = useUpdateReviewMutation();
+    const [deleteReview,] = useDeleteReviewMutation();
 
     const submitHandler = async (e) => {
         e.preventDefault();
 
         try {
-            await createReview({
-                productId,
-                rating,
-                comment,
-            }).unwrap();
-            refetch();
-            toast.success('Review created successfully');
+            if (alreadyReviewed) {
+                await updateReview({
+                    productId,
+                    rating,
+                    comment,
+                }).unwrap();
+                refetch();
+                toast.success('Review updated successfully');
+            } else {
+                await createReview({
+                    productId,
+                    rating,
+                    comment,
+                }).unwrap();
+                refetch();
+                toast.success('Review created successfully');
+            }
         } catch (err) {
             toast.error(err?.data?.message || err.error);
         }
     };
+
+    const deleteReviewHandler = async () => {
+        try {
+            await deleteReview(productId);
+            refetch();
+            toast.success('Review deleted successfully');
+        } catch (err) {
+            toast.error(err?.data?.message || err.error);
+        }
+    }
+
+
+    useEffect(() => {
+        if (userInfo && product) {
+            const review = product.reviews.find(
+                (r) => r.user.toString() === userInfo._id.toString()
+            );
+            if (review) {
+                setRating(review.rating)
+                setComment(review.comment)
+                setAlreadyReviewed(true)
+            } else {
+                setRating(0);
+                setComment('');
+                setAlreadyReviewed(false);
+            }
+        }
+    }, [product, userInfo, alreadyReviewed, setAlreadyReviewed])
 
 
     return (
@@ -164,7 +204,10 @@ const ProductScreen = () => {
                                     </ListGroup.Item>
                                 ))}
                                 <ListGroup.Item>
-                                    <h2>Write a Customer Review</h2>
+                                    {alreadyReviewed ?
+                                        <h2>Edit Your Review</h2> :
+                                        <h2>Write a Customer Review</h2>
+                                    }
 
                                     {loadingProductReview && <Loader />}
 
@@ -203,6 +246,14 @@ const ProductScreen = () => {
                                             >
                                                 Submit
                                             </Button>
+                                            {alreadyReviewed && <Button
+                                                className='mx-2'
+                                                onClick={() => deleteReviewHandler()}
+                                                type='button'
+                                                variant='danger'
+                                            >
+                                                Delete
+                                            </Button>}
                                         </Form>
                                     ) : (
                                         <Message>
