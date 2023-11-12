@@ -88,6 +88,39 @@ const addOrderItems = asyncHandler(async (req, res) => {
 
 });
 
+const cancelOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+
+    const session = await Product.startSession();
+    session.startTransaction();
+
+    for (const item of order.orderItems) {
+      const product = await Product.findById(item.product).session(session);
+
+      if (!product) {
+        // the admin can delete product and the user can cancel 
+        // an order contain this product, this case is not handled
+        res.status(400);
+        throw new Error('Product not found');
+      }
+
+      product.countInStock += item.qty;
+      await product.save();
+    }
+
+    await session.commitTransaction();
+    session.endSession();
+
+    await Product.deleteOne({ _id: order._id });
+    res.json({ message: 'Order removed' });
+  } else {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+})
+
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
 // @access  Private
@@ -184,4 +217,5 @@ export {
   updateOrderToDelivered,
   getMyOrders,
   getOrders,
+  cancelOrder,
 };

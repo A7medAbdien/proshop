@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { useSelector } from 'react-redux';
@@ -11,31 +11,28 @@ import {
   usePayOrderMutation,
   useGetPaypalClientIdQuery,
   useDeliverOrderMutation,
+  useCancelOrderMutation,
 } from '../slices/orderApiSlice';
 
 const OrderScreen = () => {
   const { id: orderId } = useParams();
 
-  const {
-    data: order,
-    refetch,
-    isLoading,
-    error,
-  } = useGetOrderDetailsQuery(orderId);
-
-  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+  const navigate = useNavigate();
 
   const { userInfo } = useSelector((state) => state.auth);
 
+  const { data: order, refetch, isLoading, error, } = useGetOrderDetailsQuery(orderId);
+
+  const [payOrder, { isLoading: loadingPay }] = usePayOrderMutation();
+
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
-  const {
-    data: paypal,
-    isLoading: loadingPayPal,
-    error: errorPayPal,
-  } = useGetPaypalClientIdQuery();
+  const { data: paypal, isLoading: loadingPayPal, error: errorPayPal } = useGetPaypalClientIdQuery();
 
   const [deliverOrder, { isLoading: loadingDeliver }] = useDeliverOrderMutation();
+
+  const [cancelOrder] = useCancelOrderMutation();
+
 
   useEffect(() => {
     if (!errorPayPal && !loadingPayPal && paypal.clientId) {
@@ -98,7 +95,20 @@ const OrderScreen = () => {
     await deliverOrder(orderId);
     refetch();
   };
+
+  const cancelHandler = async () => {
+    if (window.confirm('Are you sure')) {
+      try {
+        await cancelOrder(orderId);
+        navigate('/');
+      } catch (err) {
+        toast.error(err?.data?.message || err.error);
+      }
+    }
+  }
+
   console.log(order?.orderItems);
+
   return isLoading ? (
     <Loader />
   ) : error ? (
@@ -226,6 +236,14 @@ const OrderScreen = () => {
                       >
                         Test Pay Order
                       </Button> */}
+                      <Button
+                        variant='outline-danger'
+                        type='button'
+                        style={{ marginBottom: '10px', width: '100%' }}
+                        onClick={cancelHandler}
+                      >
+                        Cancel Order
+                      </Button>
 
                       <div>
                         <PayPalButtons
