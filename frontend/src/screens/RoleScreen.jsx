@@ -16,7 +16,7 @@ const RoleScreen = () => {
     }
 
     return (
-        <div class="d-flex justify-content-center gap-5">
+        <div className="d-flex justify-content-center gap-5">
 
             <Card style={{ maxWidth: '18rem' }}>
                 <Card.Body>
