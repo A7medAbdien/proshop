@@ -37,6 +37,11 @@ const tripSchema = mongoose.Schema(
             required: true,
             default: false,
         },
+        isPaid: {
+            type: Boolean,
+            required: true,
+            default: false,
+        },
 
         // Entered by Google Map
         expectedArrivalTime: {
