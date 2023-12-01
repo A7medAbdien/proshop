@@ -90,6 +90,40 @@ const getUserProfile = asyncHandler(async (req, res) => {
 });
 
 // @desc    Update user profile
+// @route   PUT /api/users/:id/driver
+// @access  Private
+const updateUserToDriver = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.isDriver = true
+    const updatedUser = await user.save();
+
+    res.status(200).json(updatedUser);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user profile
+// @route   PUT /api/users/:id/passenger
+// @access  Private
+const updateUserToPassenger = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.isDriver = false
+    const updatedUser = await user.save();
+
+    res.status(200).json(updatedUser);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
@@ -157,6 +191,7 @@ const getUserById = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 });
+
 // @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Private/Admin
@@ -192,4 +227,6 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  updateUserToDriver,
+  updateUserToPassenger
 };
