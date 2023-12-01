@@ -56,7 +56,7 @@ const DriverScreen = () => {
 
     return (
         <FormContainer>
-            <h1>Register</h1>
+            <h1>Trip Form</h1>
             <Form onSubmit={submitHandler}>
                 <Form.Group className='my-2' controlId='from'>
                     <Form.Label>From Location</Form.Label>
