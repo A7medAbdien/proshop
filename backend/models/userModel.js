@@ -12,9 +12,22 @@ const userSchema = mongoose.Schema(
       required: true,
       unique: true,
     },
+    paymentAccount: {
+      type: String,
+      required: false
+    },
+    receivingAccount: {
+      type: String,
+      required: false,
+    },
     password: {
       type: String,
       required: true,
+    },
+    isDriver: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     isAdmin: {
       type: Boolean,
