@@ -22,6 +22,7 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import RoleScreen from './screens/RoleScreen';
+import DriverScreen from './screens/DriverScreen';
 
 
 const router = createBrowserRouter(
@@ -38,6 +39,7 @@ const router = createBrowserRouter(
         <Route path='/search/:keyword/page/:pageNumber' element={<HomeScreen />} />
         <Route path='/profile' element={<ProfileScreen />} />
         <Route path='/role' element={<RoleScreen />} />
+        <Route path='/driver' element={<DriverScreen />} />
 
         {/* <Route path='/product/:id' element={<ProductScreen />} />
         <Route path='/cart' element={<CartScreen />} />
