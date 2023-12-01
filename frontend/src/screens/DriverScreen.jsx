@@ -10,10 +10,10 @@ import { setCredentials } from '../slices/authSlice';
 import { toast } from 'react-toastify';
 
 const DriverScreen = () => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
+    const [fromLocation, setFromLocation] = useState('');
+    const [toLocation, setToLocation] = useState('');
+    const [numSeats, setNumSeats] = useState('');
+    const [at, setAt] = useState();
 
     // const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -32,62 +32,69 @@ const DriverScreen = () => {
     //     }
     // }, [navigate, redirect, userInfo]);
 
-    const submitHandler = async (e) => {
-        // e.preventDefault();
 
-        // if (password !== confirmPassword) {
-        //     toast.error('Passwords do not match');
-        // } else {
-        //     try {
-        //         const res = await register({ name, email, password }).unwrap();
-        //         dispatch(setCredentials({ ...res }));
-        //         navigate(redirect);
-        //     } catch (err) {
-        //         toast.error(err?.data?.message || err.error);
-        //     }
-        // }
+    const getFromLocation = (e) => {
+        console.log("getFromLocation form Google Map API");
+        setFromLocation(e.target.value)
+    }
+
+    const getToLocation = (e) => {
+        console.log("getToLocation form Google Map API");
+        setToLocation(e.target.value)
+    }
+
+    const submitHandler = async (e) => {
+        e.preventDefault();
+
+        console.log({
+            fromLocation,
+            toLocation,
+            numSeats,
+            at,
+        });
     };
 
     return (
         <FormContainer>
             <h1>Register</h1>
             <Form onSubmit={submitHandler}>
-                <Form.Group className='my-2' controlId='name'>
-                    <Form.Label>Name</Form.Label>
+                <Form.Group className='my-2' controlId='from'>
+                    <Form.Label>From Location</Form.Label>
                     <Form.Control
-                        type='name'
-                        placeholder='Enter name'
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        type='string'
+                        placeholder='Enter From Location'
+                        value={fromLocation}
+                        onChange={getFromLocation}
                     ></Form.Control>
                 </Form.Group>
 
-                <Form.Group className='my-2' controlId='email'>
-                    <Form.Label>Email Address</Form.Label>
+                <Form.Group className='my-2' controlId='to'>
+                    <Form.Label>To Location</Form.Label>
                     <Form.Control
-                        type='email'
-                        placeholder='Enter email'
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        type='string'
+                        placeholder='Enter To Location'
+                        value={toLocation}
+                        onChange={getToLocation}
                     ></Form.Control>
                 </Form.Group>
 
-                <Form.Group className='my-2' controlId='password'>
-                    <Form.Label>Password</Form.Label>
+                <Form.Group className='my-2' controlId='numSeats'>
+                    <Form.Label>Number of Seats</Form.Label>
                     <Form.Control
-                        type='password'
-                        placeholder='Enter password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        type='number'
+                        placeholder='Enter Number of Seats'
+                        value={numSeats}
+                        onChange={(e) => setNumSeats(e.target.value)}
                     ></Form.Control>
                 </Form.Group>
-                <Form.Group className='my-2' controlId='confirmPassword'>
-                    <Form.Label>Confirm Password</Form.Label>
+
+                <Form.Group className='my-2' controlId='at'>
+                    <Form.Label>Enter time of your trip</Form.Label>
                     <Form.Control
-                        type='password'
-                        placeholder='Confirm password'
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        type='time'
+                        placeholder='Enter time of your trip'
+                        value={at ? at : new Date(Date.now()).toLocaleTimeString('en-US', { hour12: false })}
+                        onChange={(e) => setAt(e.target.value)}
                     ></Form.Control>
                 </Form.Group>
 
@@ -95,7 +102,7 @@ const DriverScreen = () => {
                     Register
                 </Button> */}
                 <Button type='submit' variant='primary'>
-                    Register
+                    Add The Trip
                 </Button>
 
                 {/* {isLoading && <Loader />} */}
